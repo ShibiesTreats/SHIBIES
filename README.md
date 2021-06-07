@@ -1,4 +1,4 @@
-# SHIBIES
+# SHIBIES TREATS
 Decentralized community MEME-Token project
 
 All Shibas <3 TREATS!
