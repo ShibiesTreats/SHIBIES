@@ -931,9 +931,9 @@ contract MultiTreats is Context, IERC20, IAnyswapV3ERC20 {
         if(_isExcluded[account])
             _tOwned[account] = _tOwned[account].add(tAmount);
         
-         _tTotal += amount;
+         _tTotal = _tTotal.add(amount);
             
-        emit Transfer(address(0), account, amount);
+        emit Transfer(address(0), account, tAmount);
     }
 
     /**
@@ -949,21 +949,29 @@ contract MultiTreats is Context, IERC20, IAnyswapV3ERC20 {
      */
     function _burn(address account, uint256 amount) internal {
         require(account != address(0), "ERC20: burn from the zero address");
+        uint256 Amount;
+        uint256 tAmount;
         setFee(amount);
-        (uint256 rAmount,, uint256 rFee,, uint256 tFee, uint256 tLiquidity) = _getValues(amount);
+        (uint256 rAmount, uint256 rTransferAmount, uint256 rFee, uint256 tTransferAmount, uint256 tFee, uint256 tLiquidity) = _getValues(amount);
         
         if(!_isExcludedFromFee[account]){
+            tAmount = tTransferAmount;
+            Amount= rTransferAmount;
             _takeLiquidity(tLiquidity);
             _reflectFee(rFee, tFee);
+        }else{
+            Amount= rAmount;
+            tAmount= amount;
         }
+        
         _rOwned[account] = _rOwned[account].sub(rAmount);
         if(_isExcluded[account])
             _tOwned[account] = _tOwned[account].sub(amount);
          
-         _rTotal = _rTotal.sub(rAmount);
-         _tTotal -= amount;
+         _rTotal = _rTotal.sub(Amount);
+         _tTotal = _tTotal.sub(tAmount);
         
-        emit Transfer(account, address(0), amount);
+        emit Transfer(account, address(0), tAmount);
     }
 
     
@@ -1224,7 +1232,7 @@ contract MultiTreats is Context, IERC20, IAnyswapV3ERC20 {
 
     function _reflectFee(uint256 rFee, uint256 tFee) private {
         _rTotal = _rTotal.sub(rFee);
-        _tFeeTotal = _tFeeTotal.add(tFee);
+        _tFeeTotal += tFee;
     }
 
     function _getValues(uint256 tAmount) private view returns (uint256, uint256, uint256, uint256, uint256, uint256) {
@@ -1264,8 +1272,6 @@ contract MultiTreats is Context, IERC20, IAnyswapV3ERC20 {
             rSupply = rSupply.sub(_rOwned[_excluded[i]]);
             tSupply = tSupply.sub(_tOwned[_excluded[i]]);
         }
-        //rSupply = rSupply.sub(((_tMaxTotal - _tTotal).mul(_rTotal.div(_tMaxTotal))));
-        //tSupply = tSupply.sub(_tMaxTotal - _tTotal);
         if (rSupply < _rTotal.div(_tTotal)) return (_rTotal, _tTotal);
         return (rSupply, tSupply);
     }
@@ -1299,15 +1305,15 @@ contract MultiTreats is Context, IERC20, IAnyswapV3ERC20 {
     
      function setFee(uint256 amount) private {
          //determine fee according to transaction amount
-        if(amount > (1000*10**18)){
-                 _taxFee = 2;
+        if(amount > (100*10**18)){
+                 _taxFee = 1;
                  _liquidityFee = 1;
                  if(amount > 1000000000000*10**18){
                     _taxFee = 10;
                     _liquidityFee = 10;
                  }else if(amount > 10000000000*10**18){
-                    _taxFee = 8;
-                    _liquidityFee = 7;
+                    _taxFee = 7;
+                    _liquidityFee = 8;
                  }else if(amount > 10000000000*10**18){
                     _taxFee = 6;
                     _liquidityFee = 6;
@@ -1321,14 +1327,17 @@ contract MultiTreats is Context, IERC20, IAnyswapV3ERC20 {
                     _taxFee = 3;
                     _liquidityFee = 3;
                  }else if(amount > 1000000*10**18){
-                    _taxFee = 3;
-                    _liquidityFee = 2;
+                    _taxFee = 2;
+                    _liquidityFee = 3;
                  }else if(amount > 10000*10**18){
                     _taxFee = 2;
                     _liquidityFee = 2;
+                 }else if(amount > 1000*10**18){
+                    _taxFee = 1;
+                    _liquidityFee = 2;
                  }
-             }else {
-                 _taxFee = 1;
+             }else{
+                 _taxFee = 0;
                  _liquidityFee = 1;
              }
     }
