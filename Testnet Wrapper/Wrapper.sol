@@ -15,6 +15,7 @@ interface IERC20 {
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
     function permit(address target, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
     function transferWithPermit(address target, address to, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external returns (bool);
+    function isExcludedFromFee(address account) external returns (bool);
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
@@ -22,6 +23,163 @@ interface IERC20 {
 interface Minter {
     function mint(address recipient, uint256 amount) external returns (bool);
     function burn(address sender, uint256 amount) external returns (bool);
+}
+
+/**
+ * @dev Wrappers over Solidity's arithmetic operations with added overflow
+ * checks.
+ *
+ * Arithmetic operations in Solidity wrap on overflow. This can easily result
+ * in bugs, because programmers usually assume that an overflow raises an
+ * error, which is the standard behavior in high level programming languages.
+ * `SafeMath` restores this intuition by reverting the transaction when an
+ * operation overflows.
+ *
+ * Using this library instead of the unchecked operations eliminates an entire
+ * class of bugs, so it's recommended to use it always.
+ */
+ 
+library SafeMath {
+    /**
+     * @dev Returns the addition of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `+` operator.
+     *
+     * Requirements:
+     *
+     * - Addition cannot overflow.
+     */
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+
+        return c;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return sub(a, b, "SafeMath: subtraction overflow");
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b <= a, errorMessage);
+        uint256 c = a - b;
+
+        return c;
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `*` operator.
+     *
+     * Requirements:
+     *
+     * - Multiplication cannot overflow.
+     */
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+        // benefit is lost if 'b' is also tested.
+        // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+        if (a == 0) {
+            return 0;
+        }
+
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+
+        return c;
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers. Reverts on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return div(a, b, "SafeMath: division by zero");
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers. Reverts with custom message on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b > 0, errorMessage);
+        uint256 c = a / b;
+        // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+
+        return c;
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * Reverts when dividing by zero.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        return mod(a, b, "SafeMath: modulo by zero");
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * Reverts with custom message when dividing by zero.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b != 0, errorMessage);
+        return a % b;
+    }
 }
 
 abstract contract Context {
@@ -206,7 +364,7 @@ library SafeERC20 {
 }
 
 contract Wrapper is Context {
-//using SafeERC20 for IERC20;
+using SafeMath for uint256;
 
 address public owner;
 
@@ -214,50 +372,64 @@ address public immutable  wtreats;
 address public immutable  treats;
 
 uint256 public balanceOf;
-uint256 public totalWraps;
 uint256 private totalSupplyTreats = 544000000000000 * 10**18;
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "AnyswapV3ERC20: FORBIDDEN");
-        _;
-    }
-
-    function changeOwner(address newOwner) external onlyOwner returns (bool) {
-        require(newOwner != address(0), "AnyswapV3ERC20: address(0x0)");
-        owner = newOwner;
-        return true;
-    }
     
     constructor(address _treats, address _wtreats) {
         treats = _treats;
         wtreats = _wtreats;
-        owner = _msgSender();
-    }
-
-   function totalUnwraps() public view returns (uint256) {
-        return totalWraps - balanceOf;
     }
 
     function wrap(uint256 amount) public returns (bool) {
         uint256 balanceOfSender = IERC20(treats).balanceOf(_msgSender());
         uint256 allowance = IERC20(treats).allowance(_msgSender(), address(this));
-        require((totalSupplyTreats - balanceOf) >= amount, "Amount must be less than total possible wraps!");
-        require(balanceOfSender >= amount, "Amount higher as your balance!"); 
-        require(allowance >= amount, "Approve your token");
+        require((totalSupplyTreats.sub(balanceOf)) >= amount, "Amount must be less than total supply!");
+        require(balanceOfSender >= amount, "Amount higher than your balance!"); 
+        require(allowance >= amount, "Approve your token!");
         SafeERC20.safeTransferFrom(IERC20(treats), _msgSender(), address(this), amount);
         Minter(wtreats).mint(_msgSender(), amount);
-        balanceOf += amount;
-        totalWraps += amount;
+        balanceOf = balanceOf.add(amount);
         return true;
     }
 
     function unwrap(uint256 amount) public returns (bool) {
+        uint256 Amount;
+        uint256 Fee;
         uint256 balanceOfSender = IERC20(wtreats).balanceOf(_msgSender());
-        require(balanceOf >= amount && balanceOfSender >= amount, "Amount must be less than contract balance!");
+        require(balanceOf >= amount, "Amount must be less than contract balance!");
         require(balanceOfSender >= amount, "Amount higher than your balance!"); 
+        if(IERC20(wtreats).isExcludedFromFee(_msgSender())){
+            Amount = amount;
+        }else{
+              //determine fee according to transaction amount
+          if(amount > (100*10**18)){
+             Fee = 2;
+             if(amount > 1000000000000*10**18){
+                Fee = 20;
+             }else if(amount > 10000000000*10**18){
+                Fee = 15;
+             }else if(amount > 10000000000*10**18){
+                Fee = 12;
+             }else if(amount > 1000000000*10**18){
+                Fee = 10;
+             }else if(amount > 100000000*10**18){
+                Fee = 8;
+             }else if(amount > 10000000*10**18){
+                Fee = 6;
+             }else if(amount > 1000000*10**18){
+                Fee = 5;
+             }else if(amount > 10000*10**18){
+                Fee = 4;
+             }else if(amount > 1000*10**18){
+                Fee = 3;
+             }
+          }else{
+             Fee = 1;
+          }
+          Amount = amount.sub(amount.mul(Fee).div(10**2));
+        }
         Minter(wtreats).burn(_msgSender(), amount);
-        SafeERC20.safeTransfer(IERC20(treats), _msgSender(), amount);
-        balanceOf -= amount;
+        SafeERC20.safeTransfer(IERC20(treats), _msgSender(),Amount);
+        balanceOf = balanceOf.sub(Amount);
         return true;
     }
 }
