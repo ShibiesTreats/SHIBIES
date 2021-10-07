@@ -2,17 +2,13 @@
 Decentralized community MEME-Token project
 
 All Shibas <3 TREATS!
-
-   Finally the long hunger will come to an end! 
-   The most delicious TREATS that the best INUs deserve. 
-   We are SHIBIES a very yummy and experimental decentralized community MEME Treat Token Project for all hungry SHIBA INUs. 
-   We celebrate this big ascent of Shiba Inu Token and surprise the community with our tasty TREATS.
-   Over 50% of TREATS will burned and 40% will be distributed 1:1 to every SHIB and AKITA holder except exchanges and big holder. 
-   The small rest will be used for charities and promotion.
-   New unique delicacies from SHIBIES will primarily go to TREATS holder!
-   Because SHIBAs love our TREATS so much, the supply is reduced with each transaction.
-   and every holder gets fully automatically rewards but on Ethereum only! 
-   We almost love Ethereum like Shibas.
+ 
+   We are SHIBIES a very yummy and experimental decentralized community building project for all hungry SHIBA INUs. 
+   We celebrate this big ascent of Shiba Inu Token and surprise the community with our TREATS token.
+   Over 50% of TREATS will burned and 40% will be distributed 2:1 to every SHIB and AKITA holder except exchanges and big holder. 
+   The small rest will be used for charities, promotion and liquidity.
+   TREATS is a deflationary token on Ethereum with a amount based fee which is completely redistributed to TREATS holders.
+   On Polygon TREATS has no transaction fee and no rewards.
    The best you HODL TREATS for ever, so that your Shiba never has to go hungry again!
 
    Because the very high Ethereum gas fees, we distribute our TREATS via Polygon/Matic Network!
@@ -26,20 +22,7 @@ All Shibas <3 TREATS!
    40% distribute 1:1 to SHIB and AKITA holder but big holder get maximal 0.05% of total supply for better decentralization and we burn the other tokens
    4% distribute for promotion at the beginning phase
    4% distribute to charities and open projects:
-
-   UNICEF France              5.500.000.000.000 TREATS   0.5%
-   India Covid Relief Fund    5.500.000.000.000 TREATS   0.5%
-   CoolEarth                  5.500.000.000.000 TREATS   0.5%
-   Freedom of the Press       5.500.000.000.000 TREATS   0.5%
-   Internet Archive           5.500.000.000.000 TREATS   0.5%
-   Tor Project                5.500.000.000.000 TREATS   0.5%
-   Gitcoin                    5.500.000.000.000 TREATS   0.5%
-   CoinGecko                  1.100.000.000.000 TREATS   0.1%
-   Etherscan                  1.100.000.000.000 TREATS   0.1%
-   MyEtherWallet              1.100.000.000.000 TREATS   0.1%
-   Polygon Foundation         1.100.000.000.000 TREATS   0.1%
-   Shib Token Developer       1.100.000.000.000 TREATS   0.1%
-
+   
    Variable transaction fee with auto rewards to all holders:
 
    1%                    0+ TREATS
@@ -64,7 +47,5 @@ All Shibas <3 TREATS!
    Because the token supply is still high at the beginning, higher transaction fees will apply and early holders get more rewards. 
    The minimum fee will always be at least 1%.
 
-   This is a full decentralized community token and we will burn the ownership after full distrubation.
-   No sale or team tokens!
-
-   Our fully decentralized website **** shibiestreats.crypto ****   powered by Unstoppable Domains, IPFS, Pinata and Shiba Inus
+   This is a full decentralized community project and we will change the ownership of each contract to our voting contract in near future.
+   No sales ever!
