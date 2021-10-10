@@ -704,10 +704,10 @@ contract ShibiesTreatsWrapper is Context {
             Amount = amount.sub(amount.mul(_liquidityFee).div(10**2));
         }
         SafeERC20.safeTransferFrom(IERC20(treats), _msgSender(), address(this), amount);
-        takeLiquidity();
         Minter(wtreats).mint(_msgSender(), Amount);
         balanceOf = balanceOf.add(Amount);
         totalWraps += Amount;
+        takeLiquidity();
         return true;
     }
 
@@ -725,9 +725,9 @@ contract ShibiesTreatsWrapper is Context {
               Amount = amount.sub(amount.mul(_liquidityFee).div(10**2));
         }
         Minter(wtreats).burn(_msgSender(), amount);
-        takeLiquidity();
         SafeERC20.safeTransfer(IERC20(treats), _msgSender(),Amount);
         balanceOf = balanceOf.sub(amount);
+        takeLiquidity();
         return true;
     }
     
