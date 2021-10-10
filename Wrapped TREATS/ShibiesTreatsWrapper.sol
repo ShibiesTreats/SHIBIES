@@ -731,6 +731,9 @@ contract ShibiesTreatsWrapper is Context {
         return true;
     }
     
+     // to recieve ETH from uniswapV2Router when swaping
+    receive() external payable {}
+    
     // start voting for change swap contract balance to liquidity
     function voteSwapAndLiquifyEnabled(bool enabled) external onlyOperator {
         require(pendingVote == "", "One vote is still running!");
@@ -846,9 +849,6 @@ contract ShibiesTreatsWrapper is Context {
             }
     }
 
-     // to recieve ETH from uniswapV2Router when swaping
-    receive() external payable {}
-
     function takeLiquidity() private {
         uint256 contractTokenBalance = (IERC20(treats).balanceOf(address(this))).sub(balanceOf);
         bool overMinTokenBalance = contractTokenBalance >= numTokensSellToAddToLiquidity;
@@ -932,3 +932,4 @@ contract ShibiesTreatsWrapper is Context {
         return string(str);
     }
 }
+
